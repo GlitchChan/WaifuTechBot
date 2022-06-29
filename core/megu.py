@@ -6,7 +6,7 @@ from naff import Client, MISSING, PrefixedContext, InteractionContext, Component
 from naff.api.events import MessageCreate
 from naff.client.errors import HTTPException, CommandOnCooldown, CommandCheckFailure
 
-from config import DEBUG, DEBUG_GUILD
+from secrets import DEBUG, DEBUG_GUILD
 from .copypastas import *
 from .log import get_logger
 

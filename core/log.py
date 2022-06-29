@@ -2,7 +2,7 @@ import logging
 
 from rich.logging import RichHandler
 
-from config import DEBUG
+from secrets import DEBUG
 
 __all__ = ("get_logger",)
 
