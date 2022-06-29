@@ -1,12 +1,12 @@
 from NHentai import NHentaiAsync
 from NHentai.entities.doujin import Doujin
-from naff import Extension, InteractionContext, OptionTypes, Embed, slash_command, slash_option
+from naff import Extension, InteractionContext, OptionTypes, slash_command, slash_option
 from pygelbooru import Gelbooru
 from pygelbooru.gelbooru import GelbooruImage
 
-from config import GELBOORU_ID, GELBOORU_KEY
+from secrets import GELBOORU_ID, GELBOORU_KEY
 from core import Megumin, get_logger
-from core.ext import MeguminPaginator, StringPage
+from core.ext import MeguminPaginator, StringPage, embed_builder
 
 
 class Cunny(Extension):
@@ -27,10 +27,15 @@ class Cunny(Extension):
         doujin: Doujin = await self.nhentai_client.get_random()
         tags = [tag.name for tag in doujin.tags]
 
-        doujin_embed = Embed(title=doujin.title.pretty, color=0xEC2854, url=doujin.url, description=", ".join(tags))
-        doujin_embed.set_image(doujin.cover.src)
+        doujin_emb = await embed_builder(
+            title=doujin.title.pretty,
+            color=0xEC2854,
+            url=doujin.url,
+            description=", ".join(tags),
+            image=doujin.cover.src
+        )
 
-        await ctx.send(embed=doujin_embed)
+        await ctx.send(embed=doujin_emb)
 
     @slash_command("nhentai",
                    description="Nhentai commands",
@@ -45,15 +50,16 @@ class Cunny(Extension):
         pages = []
 
         for page in doujin.images:
-            page_embed = Embed(title=doujin.title.pretty, color=0xEC2854, url=doujin.url)
-            page_embed.set_image(page.src)
-            pages.append(page_embed)
+            page_emb = embed_builder(title=doujin.title.pretty, color=0xEC2854, url=doujin.url, image=page.src)
+            pages.append(page_emb)
 
         doujin_reader = MeguminPaginator.create_from_embeds(self.client, *pages, timeout=60)
         if len(doujin_reader.pages) <= 25:
             doujin_reader.show_select_menu = True
         await doujin_reader.send(ctx)
 
+    # TODO: Clean up Gelbooru Commands
+    # TODO: Format images/videos better
     @slash_command("nsfw",
                    description="NSFW commands",
                    group_name="gelbooru",

@@ -13,13 +13,13 @@ from naff import (
     File,
     Embed,
     Attachment,
-    Color,
     check,
     dm_only,
 )
 from petpetgif import petpet
 
-import config
+import secrets
+from core.ext import embed_builder
 from core import Megumin, get_logger
 
 
@@ -31,11 +31,14 @@ def confession_embed(confession: str, image: Attachment = None) -> Embed:
     :param image: A discord Attachment if any
     :returns: A discord embed
     """
-    emb = Embed(title="Anonymous Confession", description=confession)
-    emb.footer = "Type /confess or DM me \'megu confess `confession`\'"
-    emb.image = image.url if image else None
-    emb.color = Color.random()
-    emb.timestamp = datetime.datetime.now()
+
+    emb = await embed_builder(
+        title="Anonymous Confession",
+        description=confession,
+        footer=["Type /confess or DM me \'megu confess `confession`\'"],
+        image=image.url if image else None,
+        timestamp=datetime.datetime.now()
+    )
 
     return emb
 
@@ -65,7 +68,7 @@ class Memes(Extension):
         emb = confession_embed(confession, image)
 
         await ctx.send("Sending confession", ephemeral=True)
-        await self.client.get_channel(config.CONFESSION_CHANNEL).send(embeds=[emb])
+        await self.client.get_channel(secrets.CONFESSION_CHANNEL).send(embeds=[emb])
 
     @prefixed_command("confess", usage="megu <confession>")
     @check(dm_only())
@@ -75,7 +78,7 @@ class Memes(Extension):
         emb = confession_embed(" ".join(confession), attachments[0] if attachments else None)
 
         await ctx.send("Sending confession", delete_after=5)
-        await self.client.get_channel(config.CONFESSION_CHANNEL).send(embeds=[emb])
+        await self.client.get_channel(secrets.CONFESSION_CHANNEL).send(embeds=[emb])
 
 
 def setup(client):
